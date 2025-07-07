@@ -1,0 +1,20 @@
+# Logs and runtime files
+faucet_logs/
+*.log
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Docker volumes
+.docker/
+
+# Temporary files
+*.tmp
+*.swp
+*.bak
+
+# OS files
+.DS_Store
+Thumbs.db

@@ -1,0 +1,33 @@
+vlans:
+  100:
+    description: "default VLAN"
+    unicast_flood: true
+
+dps:
+  sw1:
+    dp_id: 1
+    hardware: "Open vSwitch"
+    interfaces:
+      1:
+        description: "h1"
+        native_vlan: 100
+      2:
+        description: "h2"
+        native_vlan: 100
+      3:
+        description: "inter-switch link to sw2"
+        native_vlan: 100
+
+  sw2:
+    dp_id: 2
+    hardware: "Open vSwitch"
+    interfaces:
+      1:
+        description: "h3"
+        native_vlan: 100
+      2:
+        description: "h4"
+        native_vlan: 100
+      3:
+        description: "inter-switch link to sw1"
+        native_vlan: 100

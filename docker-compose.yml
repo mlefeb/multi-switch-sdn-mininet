@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  faucet:
+    image: faucet/faucet:latest
+    container_name: faucet
+    ports:
+      - "6653:6653"  # OpenFlow port
+      - "9302:9302"  # Prometheus metrics
+    volumes:
+      - ./working_minimal.yaml:/etc/faucet/faucet.yaml
+      - ./faucet_logs:/var/log/faucet
+    command: faucet --verbose
+    networks:
+      - sdn_network
+
+  gauge:
+    image: faucet/gauge:latest
+    container_name: gauge
+    ports:
+      - "9303:9303"  # Prometheus metrics
+    volumes:
+      - ./gauge.yaml:/etc/faucet/gauge.yaml
+      - ./faucet_logs:/var/log/faucet
+    depends_on:
+      - faucet
+    networks:
+      - sdn_network
+
+networks:
+  sdn_network:
+    driver: bridge
