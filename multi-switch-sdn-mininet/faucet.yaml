@@ -1,0 +1,113 @@
+version: 2
+
+vlans:
+  subnet1:
+    vid: 100
+    description: "Subnet 1 - 10.0.1.0/24"
+    faucet_vips: ["10.0.1.1/24"]
+  subnet2:
+    vid: 200
+    description: "Subnet 2 - 10.0.2.0/24"
+    faucet_vips: ["10.0.2.1/24"]
+  subnet3:
+    vid: 300
+    description: "Subnet 3 - 10.0.3.0/24"
+    faucet_vips: ["10.0.3.1/24"]
+  subnet4:
+    vid: 400
+    description: "Subnet 4 - 10.0.4.0/24"
+    faucet_vips: ["10.0.4.1/24"]
+  subnet5:
+    vid: 500
+    description: "Subnet 5 - 10.0.5.0/24"
+    faucet_vips: ["10.0.5.1/24"]
+
+routers:
+  router1:
+    vlans: [subnet1, subnet2, subnet3, subnet4, subnet5]
+
+dps:
+  sw1:
+    dp_id: 0x1
+    hardware: "Open vSwitch"
+    interfaces:
+      1:
+        description: "Host h1"
+        native_vlan: subnet1
+      2:
+        description: "Host h2"
+        native_vlan: subnet1
+      3:
+        description: "Link to sw2"
+        tagged_vlans: [subnet1, subnet2, subnet3, subnet4, subnet5]
+      4:
+        description: "Link to sw3"
+        tagged_vlans: [subnet1, subnet2, subnet3, subnet4, subnet5]
+  
+  sw2:
+    dp_id: 0x2
+    hardware: "Open vSwitch"
+    interfaces:
+      1:
+        description: "Host h3"
+        native_vlan: subnet2
+      2:
+        description: "Host h4"
+        native_vlan: subnet2
+      3:
+        description: "Link to sw1"
+        tagged_vlans: [subnet1, subnet2, subnet3, subnet4, subnet5]
+      4:
+        description: "Link to sw4"
+        tagged_vlans: [subnet1, subnet2, subnet3, subnet4, subnet5]
+  
+  sw3:
+    dp_id: 0x3
+    hardware: "Open vSwitch"
+    interfaces:
+      1:
+        description: "Host h5"
+        native_vlan: subnet3
+      2:
+        description: "Host h6"
+        native_vlan: subnet3
+      3:
+        description: "Link to sw1"
+        tagged_vlans: [subnet1, subnet2, subnet3, subnet4, subnet5]
+      4:
+        description: "Link to sw5"
+        tagged_vlans: [subnet1, subnet2, subnet3, subnet4, subnet5]
+  
+  sw4:
+    dp_id: 0x4
+    hardware: "Open vSwitch"
+    interfaces:
+      1:
+        description: "Host h7"
+        native_vlan: subnet4
+      2:
+        description: "Host h8"
+        native_vlan: subnet4
+      3:
+        description: "Link to sw2"
+        tagged_vlans: [subnet1, subnet2, subnet3, subnet4, subnet5]
+      4:
+        description: "Link to sw5"
+        tagged_vlans: [subnet1, subnet2, subnet3, subnet4, subnet5]
+  
+  sw5:
+    dp_id: 0x5
+    hardware: "Open vSwitch"
+    interfaces:
+      1:
+        description: "Host h9"
+        native_vlan: subnet5
+      2:
+        description: "Host h10"
+        native_vlan: subnet5
+      3:
+        description: "Link to sw3"
+        tagged_vlans: [subnet1, subnet2, subnet3, subnet4, subnet5]
+      4:
+        description: "Link to sw4"
+        tagged_vlans: [subnet1, subnet2, subnet3, subnet4, subnet5]
