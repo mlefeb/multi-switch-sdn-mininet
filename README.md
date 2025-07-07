@@ -30,9 +30,16 @@ sudo python3 definitive_test.py
 
 ### Core Files
 - **`definitive_test.py`** - ✅ **PROVEN WORKING** test script (100% success rate)
+- **`single_subnet_topology.py`** - Alternative topology for single subnet testing
 - **`working_minimal.yaml`** - ✅ **WORKING** Faucet configuration 
+- **`working_faucet.yaml`** - Full-featured Faucet configuration
+- **`faucet.yaml`** - Main Faucet configuration
 - **`docker-compose.yml`** - Controller deployment setup
 - **`gauge.yaml`** - Network monitoring configuration
+
+### Scripts
+- **`start_sdn.sh`** - Quick start script for SDN setup
+- **`test_single_subnet.sh`** - Test script for single subnet validation
 
 ### Documentation
 - **`COMPLETE_SDN_DOCUMENTATION.md`** - **📖 Complete technical documentation**
