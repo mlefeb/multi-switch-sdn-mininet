@@ -10,6 +10,7 @@ import yaml
 import os
 import subprocess
 import atexit
+import glob
 
 def generate_universal_working_config(num_switches, hosts_per_switch):
     """
@@ -191,14 +192,25 @@ def create_mesh_topology(net, num_switches, hosts_per_switch):
         info(f'*** Mesh: Creating dual-star pattern to avoid loops\n')
         
     else:
-        # For larger networks: use star pattern (proven working)
-        central_sw = switches[0]
-        for i in range(1, num_switches):
-            leaf_sw = switches[i]
-            central_port = hosts_per_switch + i
-            leaf_port = hosts_per_switch + 1
-            net.addLink(central_sw, leaf_sw, port1=central_port, port2=leaf_port)
-            info(f'*** Mesh: Using star pattern for {num_switches} switches (proven working)\n')
+        # For larger networks: use simple linear chain to avoid all port conflicts
+        # This ensures all switches are connected without interface naming issues
+        info(f'*** Mesh: Using linear chain for {num_switches} switches (avoiding port conflicts)\n')
+        info(f'*** NOTE: True mesh topology complex at scale - using connected chain\n')
+        
+        # Create simple linear chain: SW1-SW2-SW3-...-SW20
+        for i in range(num_switches - 1):
+            sw1, sw2 = switches[i], switches[i + 1]
+            
+            # Port assignments for linear chain
+            if i == 0:  # First switch (SW1)
+                port1 = hosts_per_switch + 1  # Port 3 for 2 hosts
+            else:  # Middle switches need two ports for chain
+                port1 = hosts_per_switch + 2  # Port 4 (port 3 used for incoming)
+            
+            port2 = hosts_per_switch + 1  # Port 3 for next switch (incoming)
+            
+            net.addLink(sw1, sw2, port1=port1, port2=port2)
+            info(f'*** Mesh: Chain sw{i+1} port {port1} to sw{i+2} port {port2}\n')
     
     # Add hosts using universal pattern
     hosts = create_hosts_universal(net, switches, num_switches, hosts_per_switch)
@@ -206,46 +218,57 @@ def create_mesh_topology(net, num_switches, hosts_per_switch):
     return switches, hosts
 
 def create_tree_topology(net, num_switches, hosts_per_switch):
-    """Create tree topology using working pattern"""
+    """Create simple binary tree topology with proper port management"""
     switches = []
     
-    # Create root switch
-    root_sw = net.addSwitch('sw1', cls=OVSSwitch, dpid='1')
-    switches.append(root_sw)
+    # Create all switches first
+    for i in range(1, num_switches + 1):
+        sw = net.addSwitch(f'sw{i}', cls=OVSSwitch, dpid=str(i))
+        switches.append(sw)
     
-    # Create tree structure - binary tree for simplicity
-    remaining_switches = num_switches - 1
-    parent_switches = [root_sw]
-    port_map = {0: hosts_per_switch + 1}  # Track ports for each switch
+    # Track port usage for each switch
+    port_usage = {}
+    for i in range(1, num_switches + 1):
+        # Initialize: hosts use ports 1,2, next available is 3
+        port_usage[i] = hosts_per_switch + 1
     
-    switch_id = 2
-    while remaining_switches > 0 and parent_switches:
-        current_level_switches = []
+    # Create simple binary tree connections
+    # For switch i (1-indexed), children are at 2*i and 2*i+1
+    for i in range(1, num_switches + 1):
+        parent_idx = i - 1  # 0-indexed
+        parent_sw = switches[parent_idx]
         
-        for parent_idx, parent_sw in enumerate(parent_switches):
-            if remaining_switches <= 0:
-                break
+        # Left child
+        left_child_idx = 2 * i
+        if left_child_idx <= num_switches:
+            left_child_sw = switches[left_child_idx - 1]  # 0-indexed
             
-            # Add up to 2 children per parent (binary tree)
-            for child_num in range(min(2, remaining_switches)):
-                child_sw = net.addSwitch(f'sw{switch_id}', cls=OVSSwitch, dpid=str(switch_id))
-                switches.append(child_sw)
-                current_level_switches.append(child_sw)
-                
-                # Connect parent to child
-                parent_port = port_map.get(parent_idx, hosts_per_switch + 1)
-                child_port = hosts_per_switch + 1
-                net.addLink(parent_sw, child_sw, port1=parent_port, port2=child_port)
-                info(f'*** Tree: Connecting sw{switches.index(parent_sw)+1} port {parent_port} to sw{switch_id} port {child_port}\n')
-                
-                # Update port tracking
-                port_map[parent_idx] = parent_port + 1
-                port_map[len(switches)-1] = child_port + 1
-                
-                switch_id += 1
-                remaining_switches -= 1
+            # Parent uses next available port
+            parent_port = port_usage[i]
+            port_usage[i] += 1  # Reserve this port
+            
+            # Child uses next available port (may already have parent connection)
+            child_port = port_usage[left_child_idx]
+            port_usage[left_child_idx] += 1  # Reserve this port
+            
+            net.addLink(parent_sw, left_child_sw, port1=parent_port, port2=child_port)
+            info(f'*** Tree: sw{i} port {parent_port} to sw{left_child_idx} port {child_port} (left child)\n')
         
-        parent_switches = current_level_switches
+        # Right child
+        right_child_idx = 2 * i + 1
+        if right_child_idx <= num_switches:
+            right_child_sw = switches[right_child_idx - 1]  # 0-indexed
+            
+            # Parent uses next available port
+            parent_port = port_usage[i]
+            port_usage[i] += 1  # Reserve this port
+            
+            # Child uses next available port
+            child_port = port_usage[right_child_idx]
+            port_usage[right_child_idx] += 1  # Reserve this port
+            
+            net.addLink(parent_sw, right_child_sw, port1=parent_port, port2=child_port)
+            info(f'*** Tree: sw{i} port {parent_port} to sw{right_child_idx} port {child_port} (right child)\n')
     
     # Add hosts using universal pattern
     hosts = create_hosts_universal(net, switches, num_switches, hosts_per_switch)
@@ -280,6 +303,95 @@ def create_linear_topology(net, num_switches, hosts_per_switch):
     
     return switches, hosts
 
+def cleanup_old_configs():
+    """Clean up old config files to prevent confusion"""
+    old_configs = glob.glob('universal_*_faucet.yaml')
+    for config in old_configs:
+        try:
+            os.remove(config)
+            info(f'*** Cleaned up old config: {config}\n')
+        except:
+            pass
+
+def check_flows_installed(switch, min_flows=1):
+    """
+    Check if flows are installed on a switch
+    Returns (flows_installed, flow_count, sample_flows)
+    """
+    try:
+        # Get flows from switch
+        flows_output = switch.cmd(f'ovs-ofctl -O OpenFlow13 dump-flows {switch.name}')
+        
+        # Parse flows - exclude default drop rules and table stats
+        flow_lines = []
+        for line in flows_output.split('\n'):
+            line = line.strip()
+            # Look for actual flow rules (contain actions= and not just drop)
+            if 'actions=' in line and 'drop' not in line.lower() and 'cookie=' in line:
+                flow_lines.append(line)
+        
+        flow_count = len(flow_lines)
+        flows_installed = flow_count >= min_flows
+        
+        return flows_installed, flow_count, flow_lines[:3]  # Return first 3 flows as samples
+        
+    except Exception as e:
+        return False, 0, [f"Error: {e}"]
+
+def wait_for_flows_installed(switches, max_wait_time=120, check_interval=3):
+    """
+    Wait for flows to be installed on all switches
+    Returns (success, total_time, switch_status)
+    """
+    
+    info(f'*** Programmatic flow detection: checking {len(switches)} switches every {check_interval}s\n')
+    
+    start_time = time.time()
+    switch_status = {}
+    
+    while time.time() - start_time < max_wait_time:
+        elapsed = time.time() - start_time
+        
+        all_switches_ready = True
+        switches_with_flows = 0
+        
+        for i, switch in enumerate(switches):
+            switch_name = f"SW{i+1}"
+            
+            if switch_name not in switch_status or not switch_status[switch_name]['ready']:
+                flows_installed, flow_count, sample_flows = check_flows_installed(switch, min_flows=1)
+                
+                switch_status[switch_name] = {
+                    'ready': flows_installed,
+                    'flow_count': flow_count,
+                    'sample_flows': sample_flows,
+                    'check_time': elapsed
+                }
+                
+                if flows_installed:
+                    info(f'*** {switch_name}: {flow_count} flows installed at {elapsed:.1f}s\n')
+                    switches_with_flows += 1
+                else:
+                    all_switches_ready = False
+            else:
+                # Already ready
+                switches_with_flows += 1
+        
+        if elapsed > 0 and elapsed % 10 == 0:  # Progress update every 10s
+            info(f'*** Flow detection progress: {switches_with_flows}/{len(switches)} switches ready at {elapsed:.1f}s\n')
+        
+        if all_switches_ready:
+            total_time = time.time() - start_time
+            info(f'*** All flows detected in {total_time:.1f}s!\n')
+            return True, total_time, switch_status
+        
+        # Wait before next check
+        time.sleep(check_interval)
+    
+    # Timeout reached
+    total_time = time.time() - start_time
+    return False, total_time, switch_status
+
 def universal_sdn_test(topology_type='star', num_switches=3, hosts_per_switch=2, skip_cli=False):
     """
     Universal SDN test - applies PROVEN WORKING PATTERN to all topologies
@@ -287,18 +399,33 @@ def universal_sdn_test(topology_type='star', num_switches=3, hosts_per_switch=2,
     
     setLogLevel('info')
     
+    # Clean up network interfaces from any previous tests
+    cleanup_network_interfaces()
+    
+    # Clean up old config files to prevent caching issues
+    cleanup_old_configs()
+    
     total_hosts = num_switches * hosts_per_switch
     info(f'*** Creating {topology_type} topology with {num_switches} switches and {total_hosts} hosts\n')
     
     # Generate UNIVERSAL Faucet configuration using proven working pattern
     config = generate_universal_working_config(num_switches, hosts_per_switch)
-    config_file = f'universal_{topology_type}_faucet.yaml'
     
-    # Save configuration
+    # FIXED: Use dynamic filename that includes parameters to prevent caching issues
+    config_file = f'universal_{topology_type}_s{num_switches}_h{hosts_per_switch}_faucet.yaml'
+    
+    # Always regenerate config to ensure it matches current parameters
+    info(f'*** Generating fresh configuration for {num_switches} switches, {hosts_per_switch} hosts per switch\n')
     with open(config_file, 'w') as f:
         yaml.dump(config, f, default_flow_style=False)
     
+    # VALIDATION: Verify config matches parameters
+    actual_switches = len(config['dps'])
+    if actual_switches != num_switches:
+        raise Exception(f"Config generation error: expected {num_switches} switches, got {actual_switches}")
+    
     info(f'*** Generated universal Faucet configuration: {config_file}\n')
+    info(f'*** Validated: {actual_switches} switches configured correctly\n')
     
     # Start Faucet controller
     if not start_faucet_controller(config_file):
@@ -331,23 +458,66 @@ def universal_sdn_test(topology_type='star', num_switches=3, hosts_per_switch=2,
         switch.cmd(f'ovs-vsctl set-controller {switch.name} tcp:127.0.0.1:6653')
         switch.cmd(f'ovs-vsctl set-fail-mode {switch.name} secure')
         switch.cmd(f'ovs-vsctl set bridge {switch.name} protocols=OpenFlow13')
+        # FIXED: Increase port limit to support large topologies
+        switch.cmd(f'ovs-vsctl set bridge {switch.name} other-config:max-ports=64')
+        info(f'*** {switch.name}: Configured for up to 64 ports\n')
     
     info('*** Waiting for Faucet to install flows...\n')
-    time.sleep(20)  # Give Faucet time to install flows
+    # IMPROVED: Programmatic flow detection instead of arbitrary wait
+    max_wait_time = max(60, num_switches * 4)  # Conservative maximum, but usually much faster
+    info(f'*** Checking for flow installation (max {max_wait_time}s timeout)\n')
     
-    info('*** Checking flow installation\n')
-    flows_installed = True
+    success, actual_time, switch_status = wait_for_flows_installed(switches, max_wait_time)
+    
+    if success:
+        info(f'*** Flows installed successfully in {actual_time:.1f}s (much faster than arbitrary wait!)\n')
+    else:
+        info(f'*** Warning: Not all flows installed after {actual_time:.1f}s\n')
+    
+    info('*** Final flow verification\n')
+    
+    # Use the switch status from programmatic detection
+    flows_installed = success
+    failed_switches = []
+    
+    # Display detailed flow status
     for i, switch in enumerate(switches):
-        print(f"=== SW{i+1} Flow Table ===")
-        flows = switch.cmd(f'ovs-ofctl -O OpenFlow13 dump-flows {switch.name}')
-        print(flows)
-        if 'actions=' not in flows:
-            flows_installed = False
+        switch_name = f"SW{i+1}"
+        print(f"=== {switch_name} Flow Table ===")
+        
+        if switch_name in switch_status:
+            status = switch_status[switch_name]
+            if status['ready']:
+                print(f"✅ {switch_name}: {status['flow_count']} flows installed (detected at {status['check_time']:.1f}s)")
+                # Show sample flows
+                for j, flow in enumerate(status['sample_flows'][:2]):
+                    if isinstance(flow, str) and len(flow) > 50:
+                        print(f"   Flow {j+1}: {flow[:80]}...")
+            else:
+                print(f"❌ {switch_name}: No flows installed")
+                failed_switches.append(i+1)
+                
+                # Check controller connection for failed switches
+                controller_check = switch.cmd(f'ovs-vsctl get-controller {switch.name}')
+                print(f"   Controller: {controller_check.strip()}")
+        else:
+            # Fallback check if not in status
+            flows_installed_fallback, flow_count, _ = check_flows_installed(switch)
+            if flows_installed_fallback:
+                print(f"✅ {switch_name}: {flow_count} flows installed")
+            else:
+                print(f"❌ {switch_name}: No flows installed")
+                failed_switches.append(i+1)
+                flows_installed = False
+    
+    if failed_switches:
+        print(f"\n⚠️  Switches with no flows: {failed_switches}")
+        print("   This may indicate controller connection or topology issues")
     
     if flows_installed:
-        print("✅ Flows installed - Faucet is working!")
+        print("✅ All flows installed - Faucet is working!")
     else:
-        print("❌ No flows installed - Configuration issue")
+        print("❌ Some switches missing flows - Check topology and controller")
     
     info('*** Testing connectivity\n')
     print(f"\n=== {topology_type.upper()} TOPOLOGY CONNECTIVITY TESTS ===")
@@ -418,7 +588,31 @@ def universal_sdn_test(topology_type='star', num_switches=3, hosts_per_switch=2,
     net.stop()
     stop_faucet_controller()
     
+    # Clean up network interfaces to prevent conflicts in subsequent tests
+    cleanup_network_interfaces()
+    
     return success_rate
+
+def cleanup_network_interfaces():
+    """Clean up any leftover network interfaces"""
+    try:
+        # Clean up any leftover OVS bridges
+        info('*** Cleaning up network interfaces\n')
+        subprocess.run(['sudo', 'ovs-vsctl', '--if-exists', 'del-br', 'ovs-system'], 
+                      capture_output=True, check=False)
+        
+        # Clean up any leftover network namespaces
+        subprocess.run(['sudo', 'ip', 'netns', 'flush'], 
+                      capture_output=True, check=False)
+        
+        # Clean up mininet
+        subprocess.run(['sudo', 'mn', '-c'], 
+                      capture_output=True, check=False)
+        
+        time.sleep(2)  # Give time for cleanup
+        
+    except Exception as e:
+        info(f'*** Warning: Network cleanup failed: {e}\n')
 
 def parse_args():
     """Parse command line arguments"""

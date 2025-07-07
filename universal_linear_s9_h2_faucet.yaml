@@ -1,0 +1,311 @@
+dps:
+  sw1:
+    dp_id: 1
+    hardware: Open vSwitch
+    interfaces:
+      1:
+        description: h1
+        native_vlan: 100
+      2:
+        description: h2
+        native_vlan: 100
+      3:
+        description: inter-switch trunk port 3
+        native_vlan: 100
+      4:
+        description: inter-switch trunk port 4
+        native_vlan: 100
+      5:
+        description: inter-switch trunk port 5
+        native_vlan: 100
+      6:
+        description: inter-switch trunk port 6
+        native_vlan: 100
+      7:
+        description: inter-switch trunk port 7
+        native_vlan: 100
+      8:
+        description: inter-switch trunk port 8
+        native_vlan: 100
+      9:
+        description: inter-switch trunk port 9
+        native_vlan: 100
+      10:
+        description: inter-switch trunk port 10
+        native_vlan: 100
+  sw2:
+    dp_id: 2
+    hardware: Open vSwitch
+    interfaces:
+      1:
+        description: h3
+        native_vlan: 100
+      2:
+        description: h4
+        native_vlan: 100
+      3:
+        description: inter-switch trunk port 3
+        native_vlan: 100
+      4:
+        description: inter-switch trunk port 4
+        native_vlan: 100
+      5:
+        description: inter-switch trunk port 5
+        native_vlan: 100
+      6:
+        description: inter-switch trunk port 6
+        native_vlan: 100
+      7:
+        description: inter-switch trunk port 7
+        native_vlan: 100
+      8:
+        description: inter-switch trunk port 8
+        native_vlan: 100
+      9:
+        description: inter-switch trunk port 9
+        native_vlan: 100
+      10:
+        description: inter-switch trunk port 10
+        native_vlan: 100
+  sw3:
+    dp_id: 3
+    hardware: Open vSwitch
+    interfaces:
+      1:
+        description: h5
+        native_vlan: 100
+      2:
+        description: h6
+        native_vlan: 100
+      3:
+        description: inter-switch trunk port 3
+        native_vlan: 100
+      4:
+        description: inter-switch trunk port 4
+        native_vlan: 100
+      5:
+        description: inter-switch trunk port 5
+        native_vlan: 100
+      6:
+        description: inter-switch trunk port 6
+        native_vlan: 100
+      7:
+        description: inter-switch trunk port 7
+        native_vlan: 100
+      8:
+        description: inter-switch trunk port 8
+        native_vlan: 100
+      9:
+        description: inter-switch trunk port 9
+        native_vlan: 100
+      10:
+        description: inter-switch trunk port 10
+        native_vlan: 100
+  sw4:
+    dp_id: 4
+    hardware: Open vSwitch
+    interfaces:
+      1:
+        description: h7
+        native_vlan: 100
+      2:
+        description: h8
+        native_vlan: 100
+      3:
+        description: inter-switch trunk port 3
+        native_vlan: 100
+      4:
+        description: inter-switch trunk port 4
+        native_vlan: 100
+      5:
+        description: inter-switch trunk port 5
+        native_vlan: 100
+      6:
+        description: inter-switch trunk port 6
+        native_vlan: 100
+      7:
+        description: inter-switch trunk port 7
+        native_vlan: 100
+      8:
+        description: inter-switch trunk port 8
+        native_vlan: 100
+      9:
+        description: inter-switch trunk port 9
+        native_vlan: 100
+      10:
+        description: inter-switch trunk port 10
+        native_vlan: 100
+  sw5:
+    dp_id: 5
+    hardware: Open vSwitch
+    interfaces:
+      1:
+        description: h9
+        native_vlan: 100
+      2:
+        description: h10
+        native_vlan: 100
+      3:
+        description: inter-switch trunk port 3
+        native_vlan: 100
+      4:
+        description: inter-switch trunk port 4
+        native_vlan: 100
+      5:
+        description: inter-switch trunk port 5
+        native_vlan: 100
+      6:
+        description: inter-switch trunk port 6
+        native_vlan: 100
+      7:
+        description: inter-switch trunk port 7
+        native_vlan: 100
+      8:
+        description: inter-switch trunk port 8
+        native_vlan: 100
+      9:
+        description: inter-switch trunk port 9
+        native_vlan: 100
+      10:
+        description: inter-switch trunk port 10
+        native_vlan: 100
+  sw6:
+    dp_id: 6
+    hardware: Open vSwitch
+    interfaces:
+      1:
+        description: h11
+        native_vlan: 100
+      2:
+        description: h12
+        native_vlan: 100
+      3:
+        description: inter-switch trunk port 3
+        native_vlan: 100
+      4:
+        description: inter-switch trunk port 4
+        native_vlan: 100
+      5:
+        description: inter-switch trunk port 5
+        native_vlan: 100
+      6:
+        description: inter-switch trunk port 6
+        native_vlan: 100
+      7:
+        description: inter-switch trunk port 7
+        native_vlan: 100
+      8:
+        description: inter-switch trunk port 8
+        native_vlan: 100
+      9:
+        description: inter-switch trunk port 9
+        native_vlan: 100
+      10:
+        description: inter-switch trunk port 10
+        native_vlan: 100
+  sw7:
+    dp_id: 7
+    hardware: Open vSwitch
+    interfaces:
+      1:
+        description: h13
+        native_vlan: 100
+      2:
+        description: h14
+        native_vlan: 100
+      3:
+        description: inter-switch trunk port 3
+        native_vlan: 100
+      4:
+        description: inter-switch trunk port 4
+        native_vlan: 100
+      5:
+        description: inter-switch trunk port 5
+        native_vlan: 100
+      6:
+        description: inter-switch trunk port 6
+        native_vlan: 100
+      7:
+        description: inter-switch trunk port 7
+        native_vlan: 100
+      8:
+        description: inter-switch trunk port 8
+        native_vlan: 100
+      9:
+        description: inter-switch trunk port 9
+        native_vlan: 100
+      10:
+        description: inter-switch trunk port 10
+        native_vlan: 100
+  sw8:
+    dp_id: 8
+    hardware: Open vSwitch
+    interfaces:
+      1:
+        description: h15
+        native_vlan: 100
+      2:
+        description: h16
+        native_vlan: 100
+      3:
+        description: inter-switch trunk port 3
+        native_vlan: 100
+      4:
+        description: inter-switch trunk port 4
+        native_vlan: 100
+      5:
+        description: inter-switch trunk port 5
+        native_vlan: 100
+      6:
+        description: inter-switch trunk port 6
+        native_vlan: 100
+      7:
+        description: inter-switch trunk port 7
+        native_vlan: 100
+      8:
+        description: inter-switch trunk port 8
+        native_vlan: 100
+      9:
+        description: inter-switch trunk port 9
+        native_vlan: 100
+      10:
+        description: inter-switch trunk port 10
+        native_vlan: 100
+  sw9:
+    dp_id: 9
+    hardware: Open vSwitch
+    interfaces:
+      1:
+        description: h17
+        native_vlan: 100
+      2:
+        description: h18
+        native_vlan: 100
+      3:
+        description: inter-switch trunk port 3
+        native_vlan: 100
+      4:
+        description: inter-switch trunk port 4
+        native_vlan: 100
+      5:
+        description: inter-switch trunk port 5
+        native_vlan: 100
+      6:
+        description: inter-switch trunk port 6
+        native_vlan: 100
+      7:
+        description: inter-switch trunk port 7
+        native_vlan: 100
+      8:
+        description: inter-switch trunk port 8
+        native_vlan: 100
+      9:
+        description: inter-switch trunk port 9
+        native_vlan: 100
+      10:
+        description: inter-switch trunk port 10
+        native_vlan: 100
+vlans:
+  100:
+    description: default VLAN
+    unicast_flood: true
