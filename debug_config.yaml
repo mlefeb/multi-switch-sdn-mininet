@@ -1,0 +1,65 @@
+dps:
+  sw1:
+    dp_id: '0x1'
+    hardware: Open vSwitch
+    interfaces:
+      1:
+        native_vlan: vlan100
+      2:
+        native_vlan: vlan100
+      3:
+        tagged_vlans: &id001
+        - vlan100
+        - vlan101
+      4:
+        tagged_vlans: *id001
+      5:
+        tagged_vlans: *id001
+      6:
+        tagged_vlans: *id001
+      7:
+        tagged_vlans: *id001
+      8:
+        tagged_vlans: *id001
+      9:
+        tagged_vlans: *id001
+      10:
+        tagged_vlans: *id001
+  sw2:
+    dp_id: '0x2'
+    hardware: Open vSwitch
+    interfaces:
+      1:
+        native_vlan: vlan101
+      2:
+        native_vlan: vlan101
+      3:
+        tagged_vlans: *id001
+      4:
+        tagged_vlans: *id001
+      5:
+        tagged_vlans: *id001
+      6:
+        tagged_vlans: *id001
+      7:
+        tagged_vlans: *id001
+      8:
+        tagged_vlans: *id001
+      9:
+        tagged_vlans: *id001
+      10:
+        tagged_vlans: *id001
+routers:
+  router1:
+    vlans: *id001
+vlans:
+  vlan100:
+    description: subnet1 10.0.1.0/24
+    faucet_vips:
+    - 10.0.1.1/24
+    vid: 100
+  vlan101:
+    description: subnet2 10.0.2.0/24
+    faucet_vips:
+    - 10.0.2.1/24
+    vid: 101

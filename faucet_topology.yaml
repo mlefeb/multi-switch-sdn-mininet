@@ -1,0 +1,153 @@
+dps:
+  sw1:
+    dp_id: 1
+    hardware: Open vSwitch
+    interfaces:
+      1:
+        description: h1
+        native_vlan: 100
+      2:
+        description: h2
+        native_vlan: 100
+      3:
+        description: h3
+        native_vlan: 100
+      4:
+        description: inter-switch link
+        native_vlan: 100
+      5:
+        description: inter-switch link
+        native_vlan: 100
+      6:
+        description: inter-switch link
+        native_vlan: 100
+      7:
+        description: inter-switch link
+        native_vlan: 100
+      8:
+        description: inter-switch link
+        native_vlan: 100
+      9:
+        description: inter-switch link
+        native_vlan: 100
+      10:
+        description: inter-switch link
+        native_vlan: 100
+      11:
+        description: inter-switch link
+        native_vlan: 100
+  sw2:
+    dp_id: 2
+    hardware: Open vSwitch
+    interfaces:
+      1:
+        description: h4
+        native_vlan: 100
+      2:
+        description: h5
+        native_vlan: 100
+      3:
+        description: h6
+        native_vlan: 100
+      4:
+        description: inter-switch link
+        native_vlan: 100
+      5:
+        description: inter-switch link
+        native_vlan: 100
+      6:
+        description: inter-switch link
+        native_vlan: 100
+      7:
+        description: inter-switch link
+        native_vlan: 100
+      8:
+        description: inter-switch link
+        native_vlan: 100
+      9:
+        description: inter-switch link
+        native_vlan: 100
+      10:
+        description: inter-switch link
+        native_vlan: 100
+      11:
+        description: inter-switch link
+        native_vlan: 100
+  sw3:
+    dp_id: 3
+    hardware: Open vSwitch
+    interfaces:
+      1:
+        description: h7
+        native_vlan: 100
+      2:
+        description: h8
+        native_vlan: 100
+      3:
+        description: h9
+        native_vlan: 100
+      4:
+        description: inter-switch link
+        native_vlan: 100
+      5:
+        description: inter-switch link
+        native_vlan: 100
+      6:
+        description: inter-switch link
+        native_vlan: 100
+      7:
+        description: inter-switch link
+        native_vlan: 100
+      8:
+        description: inter-switch link
+        native_vlan: 100
+      9:
+        description: inter-switch link
+        native_vlan: 100
+      10:
+        description: inter-switch link
+        native_vlan: 100
+      11:
+        description: inter-switch link
+        native_vlan: 100
+  sw4:
+    dp_id: 4
+    hardware: Open vSwitch
+    interfaces:
+      1:
+        description: h10
+        native_vlan: 100
+      2:
+        description: h11
+        native_vlan: 100
+      3:
+        description: h12
+        native_vlan: 100
+      4:
+        description: inter-switch link
+        native_vlan: 100
+      5:
+        description: inter-switch link
+        native_vlan: 100
+      6:
+        description: inter-switch link
+        native_vlan: 100
+      7:
+        description: inter-switch link
+        native_vlan: 100
+      8:
+        description: inter-switch link
+        native_vlan: 100
+      9:
+        description: inter-switch link
+        native_vlan: 100
+      10:
+        description: inter-switch link
+        native_vlan: 100
+      11:
+        description: inter-switch link
+        native_vlan: 100
+vlans:
+  100:
+    description: default VLAN
+    unicast_flood: true
