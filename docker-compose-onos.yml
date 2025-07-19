@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  # Single ONOS Controller Node for Academic Use
+  onos:
+    image: onosproject/onos:2.7.0
+    container_name: onos
+    hostname: onos
+    ports:
+      - "8181:8181"  # REST API/Web UI
+      - "6653:6653"  # OpenFlow
+      - "6640:6640"  # OVSDB
+      - "9876:9876"  # Clustering (even for single node)
+    environment:
+      - ONOS_APPS=openflow,fwd,lldpprovider,hostprovider
+      - ONOS_USER=onos
+      - ONOS_PASSWORD=rocks
+      # Scale optimizations for 100+ switches
+      - JAVA_OPTS=-Xmx6g -Xms3g -XX:+UseG1GC
+    volumes:
+      - onos-data:/root/onos/data
+    networks:
+      control_plane:
+        ipv4_address: 172.20.0.11
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "-u", "onos:rocks", "http://localhost:8181/onos/v1/applications"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+networks:
+  control_plane:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.20.0.0/16
+          gateway: 172.20.0.1
+
+volumes:
+  onos-data:
